@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FlameClient Store</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+      color: white;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 60px;
+      font-size: 40px;
+    }
+
+    .box {
+      background: #1f1f1f;
+      padding: 30px;
+      border-radius: 15px;
+      width: 300px;
+      margin: 40px auto;
+      box-shadow: 0 0 20px rgba(255,140,0,0.3);
+    }
+
+    input {
+      padding: 10px;
+      width: 80%;
+      border-radius: 10px;
+      border: none;
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 12px 20px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 10px;
+      background: orange;
+      color: black;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: darkorange;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🔥 FlameClient</h1>
+
+<div class="box">
+  <h2>Buy License</h2>
+  <p>3€ / month</p>
+
+  <input id="months" type="number" placeholder="Months">
+
+  <div id="paypal-button-container"></div>
+</div>
+
+<script src="https://www.paypal.com/sdk/js?client-id=TVUJ_CLIENT_ID&currency=EUR"></script>
+
+<script>
+paypal.Buttons({
+  createOrder: async () => {
+    let months = document.getElementById("months").value;
+    let price = months * 3;
+
+    const res = await fetch("http://localhost:3000/create-order", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ price: price.toFixed(2) })
+    });
+
+    const data = await res.json();
+    return data.id;
+  },
+
+  onApprove: async (data) => {
+    const res = await fetch("http://localhost:3000/capture-order", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ orderID: data.orderID })
+    });
+
+    const result = await res.json();
+
+    if(result.success){
+      alert("Your license: " + result.license);
+      window.location.href = "login.html";
+    }
+  }
+}).render("#paypal-button-container");
+</script>
+
+</body>
+</html>
