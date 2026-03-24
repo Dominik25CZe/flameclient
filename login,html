@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<body style="text-align:center; font-family:Arial; background:#111; color:white;">
+
+<h1>Login 🔥</h1>
+
+<input id="user" placeholder="Username"><br><br>
+<input id="pass" type="password" placeholder="Password"><br><br>
+
+<button onclick="register()">Register</button>
+<button onclick="login()">Login</button>
+
+<h2 id="msg"></h2>
+
+<button onclick="download()">Download Client</button>
+
+<script>
+let license = "";
+
+async function register(){
+  let res = await fetch("http://localhost:3000/register", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      username: user.value,
+      password: pass.value
+    })
+  });
+
+  let data = await res.json();
+  msg.innerText = JSON.stringify(data);
+}
+
+async function login(){
+  let res = await fetch("http://localhost:3000/login", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      username: user.value,
+      password: pass.value
+    })
+  });
+
+  let data = await res.json();
+
+  if(data.success){
+    license = data.license;
+    msg.innerText = "Logged in ✅";
+  } else {
+    msg.innerText = "Error";
+  }
+}
+
+function download(){
+  if(!license){
+    alert("Login first!");
+    return;
+  }
+
+  window.location.href =
+    "http://localhost:3000/download?license=" + license;
+}
+</script>
+
+</body>
+</html>
